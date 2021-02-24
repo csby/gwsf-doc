@@ -35,6 +35,9 @@
         <div class="note">
             <span>{{funcNote}}</span>
         </div>
+        <div class="remark">
+          <span>{{funcRemark}}</span>
+        </div>
     </el-collapse-item>
 </template>
 
@@ -79,8 +82,12 @@ class Summary extends VueBase {
     if (this.data) { return this.data.note } else { return '' }
   }
 
+  get funcRemark () {
+    if (this.data) { return this.data.remark } else { return '' }
+  }
+
   get isWebsocket () {
-    if (this.data) { return this.data.webSocket } else { return false }
+    if (this.data) { return this.data.isWebsocket } else { return false }
   }
 
   onTry () {
@@ -122,5 +129,10 @@ export default Summary
     .note {
         margin-top: 10px;
         color: gray;
+    }
+
+    .remark {
+      margin-top: 1px;
+      color: lightcoral;
     }
 </style>

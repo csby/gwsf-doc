@@ -1,5 +1,5 @@
 const app = {
-  id: 'FDC3BDEFB79CEC8EB8211D2499E04704',
+  guid: 'FDC3BDEFB79CEC8EB8211D2499E04704',
   title: '接口文档'
 }
 

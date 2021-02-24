@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div>
-      <div style="padding: 3px 0px">
-        <span class="name">{{name}}</span>
-      </div>
+    <div class="summary-header content">
+      <span class="name">{{name}}</span>
+    </div>
+    <div class="content">
       <el-input v-model="url" placeholder="">
         <template slot="prepend">{{method}}</template>
         <el-dropdown slot="append" @click="send" :disabled="isSending" :split-button="true" trigger="click">
@@ -25,7 +25,8 @@
         </el-dropdown>
       </el-input>
     </div>
-    <div v-loading="isSending"
+    <div class="content"
+         v-loading="isSending"
          element-loading-text="发送中"
          element-loading-spinner="el-icon-loading"
          element-loading-background="rgba(0, 0, 0, 0.5)">
@@ -131,6 +132,14 @@
           </el-tab-pane>
         </el-tabs>
       </div>
+      <div v-show="isImageVisible">
+        <div class="param-header">
+          <span>图片信息</span>
+        </div>
+        <div>
+          <el-image :src="imageSource"></el-image>
+        </div>
+      </div>
     </div>
 
     <tokenDialog v-model="tokenDialogVisible" :id="id" :place="tokenPlace" :name="tokenName" @created="onCreateToken"/>
@@ -182,6 +191,9 @@ class Http extends VueBase {
   tokenName = ''
   timeout = 30
 
+  isImageVisible = false
+  imageSource = ''
+
   showTokenDialog (place, name) {
     this.tokenPlace = place
     this.tokenName = name
@@ -206,6 +218,25 @@ class Http extends VueBase {
     this.tokenDialogVisible = false
   }
 
+  showImage (data) {
+    this.isImageVisible = false
+    if (!data) {
+      return
+    }
+    if (data.code !== 0) {
+      return
+    }
+    if (!data.data) {
+      return
+    }
+    if (!data.data.value) {
+      return
+    }
+
+    this.imageSource = data.data.value
+    this.isImageVisible = true
+  }
+
   onSendSuccess (response) {
     this.isSending = false
     let isJson = false
@@ -227,6 +258,7 @@ class Http extends VueBase {
 
     if (isJson) {
       this.$refs.outputBody.innerHTML = this.syntaxHighlight(response.data)
+      this.showImage(response.data)
     } else {
       this.$refs.outputBody.innerHTML = response.data
     }
@@ -238,8 +270,9 @@ class Http extends VueBase {
   }
 
   send () {
+    this.showImage(null)
     let isJson = false
-    const headers = []
+    const headers = {}
     if (this.inputHeaders) {
       const count = this.inputHeaders.length
       for (let i = 0; i < count; i++) {
@@ -263,7 +296,7 @@ class Http extends VueBase {
       }
     }
 
-    const params = []
+    const params = {}
     if (this.inputQueries) {
       const count = this.inputQueries.length
       for (let i = 0; i < count; i++) {
@@ -335,7 +368,6 @@ class Http extends VueBase {
       this.inputQueries = data.input.queries
       this.inputHeaders = data.input.headers
       this.inputForms = data.input.forms
-
       this.isJsonInput = false
       this.isForm = false
       if (this.inputHeaders) {
@@ -374,7 +406,16 @@ export default Http
 
 <style scoped>
 .container {
+  padding: 0;
+}
+
+.content {
   padding: 1px 5px;
+}
+.summary-header {
+  background-color: darkblue;
+  color: white;
+  margin-bottom: 5px;
 }
 
 .param-header {
@@ -382,12 +423,6 @@ export default Http
   background-color: lightgray;
 }
 
-.param-footer {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
 .input-row {
   margin-bottom: 5px;
 }
@@ -400,7 +435,7 @@ export default Http
 .header-label {
   font-weight: bold;
 }
-.header-required,
+
 .query-required {
   color: red;
 }
@@ -417,7 +452,6 @@ export default Http
   width: calc(100% - 135px);
 }
 .btn-send,
-.header-optional,
 .query-optional {
   color: #000;
 }

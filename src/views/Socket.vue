@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div>
-      <div class="param-footer">
-        <span>{{name}}</span>
-      </div>
+    <div class="summary-header content">
+      <span>{{name}}</span>
+    </div>
+    <div class="content">
       <el-input v-model="url" placeholder="">
         <template slot="prepend">{{method}}</template>
         <el-button slot="append" @click="openWebSocket" style="width: 135px;" :disabled="status === statuses.opening || status === statuses.closing">
@@ -13,10 +13,12 @@
       </el-input>
       <div class="status">
         <span style="padding-right: 5px;">状态:</span>
-        <span style="font-weight: bold;">{{statusTxt[status]}}</span>
+        <div style="font-weight: bold">
+          <span :style="{color: statusColor[status]}">{{statusTxt[status]}}</span>
+        </div>
       </div>
     </div>
-    <div >
+    <div class="content">
       <div>
         <div class="param-header">
           <span>输入参数</span>
@@ -103,6 +105,13 @@ class Socket extends VueBase {
     '打开中...',
     '已打开',
     '关闭中...'
+  ]
+
+  statusColor = [
+    'gray',
+    'blue',
+    'green',
+    'blue'
   ]
 
   defaultMode = 'code'
@@ -277,7 +286,16 @@ export default Socket
 
 <style scoped>
 .container {
-  padding-top: 0px;
+  padding: 0;
+}
+
+.content {
+  padding: 1px 5px;
+}
+.summary-header {
+  background-color: darkblue;
+  color: white;
+  margin-bottom: 3px;
 }
 
 .param-header {
@@ -288,24 +306,13 @@ export default Socket
   background-color: lightgray;
 }
 
-.param-footer {
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
 .input-body {
   margin-top: 2px;
 }
 .input-body-json {
   margin-top: 0;
 }
-.header-label {
-  font-weight: bold;
-}
-.header-required,
-.query-required {
-  color: red;
-}
+
 .query-label {
   display: inline-block;
   width: 120px;
@@ -313,7 +320,6 @@ export default Socket
   text-align: right;
 }
 .btn-send,
-.header-optional,
 .query-optional {
   color: #000;
 }
