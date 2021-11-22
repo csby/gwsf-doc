@@ -151,6 +151,7 @@ import VueBase from '@/components/VueBase'
 import Component from 'vue-class-component'
 import VueJsonEditor from 'vue-json-editor'
 import axios from 'axios'
+import vkbeautify from 'vkbeautify'
 import TokenDialog from '@/components/tryit/Token'
 import FileInput from '@/components/tryit/FileInput'
 
@@ -179,11 +180,13 @@ class Http extends VueBase {
   method = ''
   inputTab = 'tpInputBody'
   inputBody = ''
+  inputBodyJson = {}
   inputQueries = []
   inputHeaders = []
   inputForms = []
+  inputFormat = 1
   outputHeaders = []
-  inputBodyJson = {}
+  outputFormat = 1
   isForm = false
 
   tokenDialogVisible = false
@@ -260,7 +263,11 @@ class Http extends VueBase {
       this.$refs.outputBody.innerHTML = this.syntaxHighlight(response.data)
       this.showImage(response.data)
     } else {
-      this.$refs.outputBody.innerHTML = response.data
+      if (this.outputFormat === 2) {
+        this.$refs.outputBody.innerHTML = this.syntaxXmlHighlight(vkbeautify.xml(response.data))
+      } else {
+        this.$refs.outputBody.innerHTML = response.data
+      }
     }
   }
 
@@ -362,8 +369,16 @@ class Http extends VueBase {
       this.name = data.name
       this.url = data.fullPath
       this.method = data.method
+      this.outputFormat = data.output.format
+      this.inputFormat = data.input.format
       if (data.input.example) {
-        this.inputBodyJson = data.input.example
+        if (data.output.format === 1) {
+          this.inputBodyJson = data.input.example
+        } else if (data.output.format === 2) {
+          this.inputBody = vkbeautify.xml(data.input.example)
+        } else {
+          this.inputBody = data.input.example
+        }
       }
       this.inputQueries = data.input.queries
       this.inputHeaders = data.input.headers
@@ -462,5 +477,7 @@ pre {
   padding: 0px 10px;
   white-space: pre-wrap;
   word-wrap: break-word;
+  max-height: 300px;
+  overflow: auto;
 }
 </style>

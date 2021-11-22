@@ -27,6 +27,7 @@
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "^6.2.2",
     "generate-json-file-webpack-plugin": "^0.0.3",
+    "vkbeautify": "^0.99.3",
     "vue-class-component": "^7.2.6",
     "vue-clipboard2": "^0.3.1",
     "vue-json-editor": "^1.4.3",

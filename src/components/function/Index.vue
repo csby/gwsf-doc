@@ -19,7 +19,7 @@
               <Model :data="inputModels" :optional="true"/>
             </el-tab-pane>
             <el-tab-pane label="示例" name="tpInputExample">
-              <Example :data="inputExample" />
+              <Example :format="inputFormat" :data="inputExample" />
             </el-tab-pane>
           </el-tabs>
         </el-tab-pane>
@@ -40,7 +40,7 @@
               <Model :data="outputModels" />
             </el-tab-pane>
             <el-tab-pane label="示例" name="tpOutputExample">
-              <Example :data="outputExample" />
+              <Example :format="outputFormat" :data="outputExample" />
             </el-tab-pane>
             <el-tab-pane label="代码" name="tpOutputError" v-if="outputErrors.length > 0">
               <Code :data="outputErrors" />
@@ -87,10 +87,12 @@ import Code from './Code'
 class Function extends VueBase {
     activeItems = ['summary', 'output', 'input']
     data = null
+    outputFormat = 1
     outputExample = null
     outputModels = []
     outputHeaders = []
     outputErrors = []
+    inputFormat = 1
     inputExample = null
     inputModels = []
     inputHeaders = []
@@ -110,6 +112,7 @@ class Function extends VueBase {
         this.data = data
 
         // output
+        this.outputFormat = data.output.format
         if (data.output.model) {
           this.outputModels = data.output.model
         } else {
@@ -122,6 +125,7 @@ class Function extends VueBase {
         }
 
         // input
+        this.inputFormat = data.input.format
         if (data.input.model) {
           this.inputModels = data.input.model
         } else {

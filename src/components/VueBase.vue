@@ -61,6 +61,14 @@ class VueBase extends Vue {
     })
   }
 
+  syntaxXmlHighlight (xml) {
+    if (xml) {
+      xml = xml.replace(/</g, '&lt;')
+      xml = xml.replace(/>/g, '&gt;')
+    }
+    return xml
+  }
+
   // example
   // uri: "/user/info"
   // argument: {id: "111212323"}
