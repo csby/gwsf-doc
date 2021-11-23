@@ -117,7 +117,12 @@
         </div>
         <el-tabs value="tpOutputBody" tabPosition="top">
           <el-tab-pane label="body" name="tpOutputBody">
-            <pre ref="outputBody"></pre>
+           <div>
+             <el-tooltip content="复制" placement="right" style="position: absolute; right: 25px;">
+               <el-button type="text" icon="el-icon-document-copy" @click="doCopy('outputBody')"/>
+             </el-tooltip>
+             <pre ref="outputBody"></pre>
+           </div>
           </el-tab-pane>
           <el-tab-pane label="header" name="tpOutputHeader">
                     <span slot="label">
@@ -196,6 +201,13 @@ class Http extends VueBase {
 
   isImageVisible = false
   imageSource = ''
+
+  doCopy (ref) {
+    const pre = this.$refs[ref]
+    if (pre) {
+      this.$copyText(pre.innerText)
+    }
+  }
 
   showTokenDialog (place, name) {
     this.tokenPlace = place
@@ -474,10 +486,13 @@ export default Http
   padding: 1px 10px;
 }
 pre {
-  padding: 0px 10px;
+  padding: 1px 10px;
   white-space: pre-wrap;
   word-wrap: break-word;
-  max-height: 300px;
+  border: solid 1px lightgray;
+  border-radius: 4px;
+  min-height: 100px;
+  max-height: 360px;
   overflow: auto;
 }
 </style>

@@ -1,5 +1,10 @@
 <template>
-  <pre ref="example" v-show="data !== null"></pre>
+  <div v-show="data !== null">
+    <el-tooltip content="复制" placement="right" style="position: absolute; right: 25px;">
+      <el-button type="text" icon="el-icon-document-copy" @click="doCopy"/>
+    </el-tooltip>
+    <pre ref="example"></pre>
+  </div>
 </template>
 
 <script>
@@ -38,6 +43,13 @@ class Example extends VueBase {
       this.$refs.example.innerHTML = ''
     }
   }
+
+  doCopy () {
+    const pre = this.$refs.example
+    if (pre) {
+      this.$copyText(pre.innerText)
+    }
+  }
 }
 
 export default Example
@@ -48,6 +60,7 @@ pre {
   outline: 1px solid #ccc;
   padding: 5px;
   margin: 2px;
+  min-height: 50px;
   max-height: 300px;
   overflow: auto;
 }
