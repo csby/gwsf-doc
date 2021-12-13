@@ -57,15 +57,9 @@
               </div>
             </div>
             <div v-else>
-              <vueJsonEditor v-if="isJsonInput" v-model="inputBodyJson"  class="input-body-json"
-                             :showBtns="false"
-                             :mode="defaultMode"
-                             :modes="defaultModes"
-                             :lang="defaultLang">
-              </vueJsonEditor>
-              <el-input v-else v-model="inputBody" type="textarea"
-                        :autosize="{ minRows: 4, maxRows: 12}"  placeholder="" class="input-body">
-              </el-input>
+              <editor v-model="inputBody"
+                      :lang="inputLang"
+                      :height="210" />
             </div>
           </el-tab-pane>
           <el-tab-pane label="header" name="tpInputHeader" :disabled="inputHeaders.length === 0">
@@ -118,10 +112,14 @@
         <el-tabs value="tpOutputBody" tabPosition="top">
           <el-tab-pane label="body" name="tpOutputBody">
            <div>
-             <el-tooltip content="复制" placement="right" style="position: absolute; right: 25px;">
-               <el-button type="text" icon="el-icon-document-copy" @click="doCopy('outputBody')"/>
-             </el-tooltip>
-             <pre ref="outputBody"></pre>
+             <editor v-model="outputBody"
+                     :lang="outputLang"
+                     :height="230"
+                     :read-only="true" />
+             <el-button type="text"
+                        icon="el-icon-document-copy"
+                        style="position: absolute; right: 25px;"
+                        @click="doCopy('outputBody')"/>
            </div>
           </el-tab-pane>
           <el-tab-pane label="header" name="tpOutputHeader">
@@ -154,15 +152,14 @@
 <script>
 import VueBase from '@/components/VueBase'
 import Component from 'vue-class-component'
-import VueJsonEditor from 'vue-json-editor'
 import axios from 'axios'
-import vkbeautify from 'vkbeautify'
+import Editor from '@/components/Editor'
 import TokenDialog from '@/components/tryit/Token'
 import FileInput from '@/components/tryit/FileInput'
 
 @Component({
   components: {
-    vueJsonEditor: VueJsonEditor,
+    editor: Editor,
     tokenDialog: TokenDialog,
     fileInput: FileInput
   },
@@ -174,24 +171,22 @@ import FileInput from '@/components/tryit/FileInput'
   }
 })
 class Http extends VueBase {
-  defaultMode = 'code'
-  defaultModes = ['tree', 'code', 'text']
-  defaultLang = 'en'
   isSending = false
-  isJsonInput = false
   id = ''
   name = ''
   url = ''
   method = ''
   inputTab = 'tpInputBody'
   inputBody = ''
-  inputBodyJson = {}
+  inputLang = 'json'
   inputQueries = []
   inputHeaders = []
   inputForms = []
   inputFormat = 1
+  outputLang = 'text'
   outputHeaders = []
   outputFormat = 1
+  outputBody = ''
   isForm = false
 
   tokenDialogVisible = false
@@ -254,32 +249,22 @@ class Http extends VueBase {
 
   onSendSuccess (response) {
     this.isSending = false
-    let isJson = false
     const headers = []
     if (response.headers) {
       for (const k in response.headers) {
         const v = response.headers[k]
         headers.push({ name: k, value: v })
-        if (k === 'content-type') {
-          if (this.isNotNullOrEmpty(v)) {
-            if (v.indexOf('application/json') !== -1) {
-              isJson = true
-            }
-          }
-        }
       }
     }
     this.outputHeaders = headers
 
-    if (isJson) {
-      this.$refs.outputBody.innerHTML = this.syntaxHighlight(response.data)
+    if (this.outputFormat === 1) {
+      this.outputBody = this.formatJson(response.data)
       this.showImage(response.data)
+    } else if (this.outputFormat === 2) {
+      this.outputBody = this.formatXml(response.data)
     } else {
-      if (this.outputFormat === 2) {
-        this.$refs.outputBody.innerHTML = this.syntaxXmlHighlight(vkbeautify.xml(response.data))
-      } else {
-        this.$refs.outputBody.innerHTML = response.data
-      }
+      this.outputBody = response.data
     }
   }
 
@@ -290,7 +275,6 @@ class Http extends VueBase {
 
   send () {
     this.showImage(null)
-    let isJson = false
     const headers = {}
     if (this.inputHeaders) {
       const count = this.inputHeaders.length
@@ -304,14 +288,6 @@ class Http extends VueBase {
           }
         }
         headers[header.name] = header.defaultValue
-
-        if (header.name.toLowerCase() === 'content-type') {
-          if (this.isNotNullOrEmpty(header.defaultValue)) {
-            if (header.defaultValue.toLowerCase().indexOf('json') !== -1) {
-              isJson = true
-            }
-          }
-        }
       }
     }
 
@@ -351,8 +327,6 @@ class Http extends VueBase {
     try {
       if (this.isForm) {
         data = forms
-      } else if (isJson) {
-        data = this.inputBodyJson
       } else {
         data = this.inputBody
       }
@@ -382,20 +356,30 @@ class Http extends VueBase {
       this.url = data.fullPath
       this.method = data.method
       this.outputFormat = data.output.format
+      if (data.output.format === 1) {
+        this.outputLang = 'json'
+      } else if (data.output.format === 2) {
+        this.outputLang = 'xml'
+      } else {
+        this.outputLang = 'text'
+      }
+
       this.inputFormat = data.input.format
       if (data.input.example) {
-        if (data.output.format === 1) {
-          this.inputBodyJson = data.input.example
-        } else if (data.output.format === 2) {
-          this.inputBody = vkbeautify.xml(data.input.example)
+        if (data.input.format === 1) {
+          this.inputLang = 'json'
+          this.inputBody = this.formatJson(data.input.example)
+        } else if (data.input.format === 2) {
+          this.inputLang = 'xml'
+          this.inputBody = this.formatXml(data.input.example)
         } else {
+          this.inputLang = 'text'
           this.inputBody = data.input.example
         }
       }
       this.inputQueries = data.input.queries
       this.inputHeaders = data.input.headers
       this.inputForms = data.input.forms
-      this.isJsonInput = false
       this.isForm = false
       if (this.inputHeaders) {
         const count = this.inputHeaders.length
@@ -403,9 +387,6 @@ class Http extends VueBase {
           const header = this.inputHeaders[i]
           if (header.name.toLowerCase() === 'content-type') {
             if (this.isNotNullOrEmpty(header.defaultValue)) {
-              if (header.defaultValue.toLowerCase().indexOf('json') !== -1) {
-                this.isJsonInput = true
-              }
               if (header.defaultValue.toLowerCase().indexOf('form') !== -1) {
                 this.isForm = true
               }

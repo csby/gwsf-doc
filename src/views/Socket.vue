@@ -25,11 +25,9 @@
         </div>
         <el-tabs v-model="inputTab" tabPosition="top">
           <el-tab-pane label="body" name="tpInputBody">
-            <vueJsonEditor v-if="isJsonInput" v-model="inputBodyJson" class="input-body-json"
-                           :showBtns="false" :mode="defaultMode" :modes="defaultModes" :lang="defaultLang">
-            </vueJsonEditor>
-            <el-input v-else v-model="inputBody" type="textarea" :autosize="{ minRows: 4, maxRows: 12}"  placeholder="" class="input-body">
-            </el-input>
+            <editor v-model="inputBody"
+                    lang="json"
+                    :height="210" />
             <div style="padding-top: 5px;">
               <el-button type="primary" :disabled="status !== statuses.opened" @click="send">
                 <span>发 送</span>
@@ -76,11 +74,13 @@
 import VueBase from '@/components/VueBase'
 import Component from 'vue-class-component'
 import VueJsonEditor from 'vue-json-editor'
+import Editor from '@/components/Editor'
 import TokenDialog from '@/components/tryit/Token'
 
 @Component({
   components: {
     vueJsonEditor: VueJsonEditor,
+    editor: Editor,
     tokenDialog: TokenDialog
   },
   props: {
@@ -125,7 +125,6 @@ class Socket extends VueBase {
   inputTab = 'tpInputBody'
   inputBody = ''
   inputQueries = []
-  inputBodyJson = {}
   outputMaxNumber = 10
 
   tokenDialogVisible = false
@@ -232,11 +231,7 @@ class Socket extends VueBase {
 
     let data
     try {
-      if (this.isJsonInput) {
-        data = this.inputBodyJson
-      } else {
-        data = this.inputBody
-      }
+      data = this.inputBody
     } catch (e) {
       this.error(e.message)
       this.inputTab = 'tpInputBody'
@@ -262,7 +257,7 @@ class Socket extends VueBase {
       this.url = data.fullPath
       this.method = data.method
       if (data.input.example) {
-        this.inputBodyJson = data.input.example
+        this.inputBody = this.formatJson(data.input.example)
       }
       this.inputQueries = data.input.queries
       this.isJsonInput = true
