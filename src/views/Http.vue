@@ -249,28 +249,41 @@ class Http extends VueBase {
 
   onSendSuccess (response) {
     this.isSending = false
+    let outputFormat = this.outputFormat
     const headers = []
     if (response.headers) {
       for (const k in response.headers) {
         const v = response.headers[k]
         headers.push({ name: k, value: v })
+        if (k === 'content-type') {
+          if (this.isNotNullOrEmpty(v)) {
+            if (v.indexOf('application/json') !== -1) {
+              outputFormat = 1
+            } else if (v.indexOf('application/xml') !== -1) {
+              outputFormat = 2
+            }
+          }
+        }
       }
     }
     this.outputHeaders = headers
 
-    if (this.outputFormat === 1) {
+    if (outputFormat === 1) {
+      this.outputLang = 'json'
       this.outputBody = this.formatJson(response.data)
       this.showImage(response.data)
-    } else if (this.outputFormat === 2) {
+    } else if (outputFormat === 2) {
+      this.outputLang = 'xml'
       this.outputBody = this.formatXml(response.data)
     } else {
+      this.outputLang = 'text'
       this.outputBody = response.data
     }
   }
 
   onSendFail (err) {
     this.isSending = false
-    this.$refs.outputBody.innerHTML = err.message
+    console.log(err)
   }
 
   send () {
