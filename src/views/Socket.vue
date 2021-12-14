@@ -114,9 +114,6 @@ class Socket extends VueBase {
     'blue'
   ]
 
-  defaultMode = 'code'
-  defaultModes = ['tree', 'code', 'text']
-  defaultLang = 'en'
   isJsonInput = false
   id = ''
   name = ''

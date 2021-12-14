@@ -283,7 +283,9 @@ class Http extends VueBase {
 
   onSendFail (err) {
     this.isSending = false
-    console.log(err)
+    this.outputHeaders = []
+    this.outputLang = 'text'
+    this.outputBody = err.message
   }
 
   send () {
