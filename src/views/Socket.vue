@@ -73,13 +73,11 @@
 <script>
 import VueBase from '@/components/VueBase'
 import Component from 'vue-class-component'
-import VueJsonEditor from 'vue-json-editor'
 import Editor from '@/components/Editor'
 import TokenDialog from '@/components/tryit/Token'
 
 @Component({
   components: {
-    vueJsonEditor: VueJsonEditor,
     editor: Editor,
     tokenDialog: TokenDialog
   },
