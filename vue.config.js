@@ -7,6 +7,7 @@ const IsProduction = process.env.NODE_ENV === 'production'
 module.exports = {
   lintOnSave: false,
   publicPath: process.env.NODE_ENV === 'production' ? cfg.web.pro : cfg.web.dev,
+  productionSourceMap: !IsProduction,
   chainWebpack: config => {
     config.plugin('html').tap(args => {
       args[0].templateParameters = {

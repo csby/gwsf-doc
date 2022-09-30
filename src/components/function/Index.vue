@@ -5,7 +5,7 @@
       <template slot="title">
         <span class="pnl-title">输入参数</span>
       </template>
-      <el-tabs value="tpInputBody" tabPosition="left">
+      <el-tabs v-model="tabs.input" tabPosition="left">
         <el-tab-pane label="header" name="tpInputHeader" :disabled="inputHeaders.length < 1">
           <Header :data="inputHeaders" :optional="true" />
         </el-tab-pane>
@@ -16,12 +16,15 @@
           <Form v-if="isForm" :data="inputForms" />
           <el-tabs v-else value="tpInputExample" tabPosition="right">
             <el-tab-pane label="结构" name="tpInputModel">
-              <Model :data="inputModels" :optional="true"/>
+              <Model :data="inputModels" :optional="true" key="inputModels"/>
             </el-tab-pane>
             <el-tab-pane label="示例" name="tpInputExample">
-              <Example :format="inputFormat" :data="inputExample" />
+              <Example :format="inputFormat" :data="inputExample" key="inputExample" />
             </el-tab-pane>
           </el-tabs>
+        </el-tab-pane>
+        <el-tab-pane v-if="appendixes.input" label="appendix" name="tpInputAppendix">
+          <Appendix v-model="appendixes.input" key="appendixesInputs"/>
         </el-tab-pane>
       </el-tabs>
     </el-collapse-item>
@@ -30,22 +33,25 @@
       <template slot="title">
         <span class="pnl-title">输出参数</span>
       </template>
-      <el-tabs value="tpOutputBody" tabPosition="left">
+      <el-tabs v-model="tabs.output" tabPosition="left">
         <el-tab-pane label="header" name="tpOutputHeader" :disabled="outputHeaders.length < 1">
           <Header :data="outputHeaders" />
         </el-tab-pane>
         <el-tab-pane label="body" name="tpOutputBody">
           <el-tabs value="tpOutputExample" tabPosition="right">
             <el-tab-pane label="结构" name="tpOutputModel">
-              <Model :data="outputModels" />
+              <Model :data="outputModels" key="outputModels" />
             </el-tab-pane>
             <el-tab-pane label="示例" name="tpOutputExample">
-              <Example :format="outputFormat" :data="outputExample" />
+              <Example :format="outputFormat" :data="outputExample" key="outputExample" />
             </el-tab-pane>
             <el-tab-pane label="代码" name="tpOutputError" v-if="outputErrors.length > 0">
               <Code :data="outputErrors" />
             </el-tab-pane>
           </el-tabs>
+        </el-tab-pane>
+        <el-tab-pane v-if="appendixes.output" label="appendix" name="tpOutputAppendix">
+          <Appendix v-model="appendixes.output" key="appendixesOutputs"/>
         </el-tab-pane>
       </el-tabs>
     </el-collapse-item>
@@ -62,28 +68,30 @@ import Example from './Example'
 import Header from './Header'
 import Form from './Form'
 import Code from './Code'
+import Appendix from './Appendix'
 
-  @Component({
-    components: {
-      Summary,
-      Model,
-      Example,
-      Header,
-      Form,
-      Code
-    },
-    props: {
-      id: {
-        type: String,
-        default: ''
-      }
-    },
-    watch: {
-      id: {
-        handler: 'onIdChanged'
-      }
+@Component({
+  components: {
+    Summary,
+    Model,
+    Example,
+    Header,
+    Form,
+    Code,
+    Appendix
+  },
+  props: {
+    id: {
+      type: String,
+      default: ''
     }
-  })
+  },
+  watch: {
+    id: {
+      handler: 'onIdChanged'
+    }
+  }
+})
 class Function extends VueBase {
     activeItems = ['summary', 'output', 'input']
     data = null
@@ -99,6 +107,16 @@ class Function extends VueBase {
     inputQueries = []
     inputForms = []
     isForm = false
+
+    appendixes = {
+      input: null,
+      output: null
+    }
+
+    tabs = {
+      input: 'tpInputBody',
+      output: 'tpOutputBody'
+    }
 
     onIdChanged (newVal, oldVal) {
       if (newVal === oldVal) {
@@ -123,6 +141,14 @@ class Function extends VueBase {
         if (data.output.errors) {
           this.outputErrors = data.output.errors
         }
+        this.appendixes.output = null
+        if (data.output.appendix) {
+          if (data.output.appendix.items) {
+            if (data.output.appendix.items.length > 0) {
+              this.appendixes.output = data.output.appendix
+            }
+          }
+        }
 
         // input
         this.inputFormat = data.input.format
@@ -130,6 +156,14 @@ class Function extends VueBase {
           this.inputModels = data.input.model
         } else {
           this.inputModels = []
+        }
+        this.appendixes.input = null
+        if (data.input.appendix) {
+          if (data.input.appendix.items) {
+            if (data.input.appendix.items.length > 0) {
+              this.appendixes.input = data.input.appendix
+            }
+          }
         }
         this.inputHeaders = data.input.headers
         this.inputQueries = data.input.queries
@@ -151,13 +185,16 @@ class Function extends VueBase {
       } else {
         this.apiError(err)
       }
+
+      this.tabs.input = 'tpInputBody'
+      this.tabs.output = 'tpOutputBody'
     }
 
     getFunction (id) {
       const uri = this.network.uris.getFunction + id
       this.post(uri, null, this.onGetFunction)
     }
-  }
+}
 
 export default Function
 </script>
