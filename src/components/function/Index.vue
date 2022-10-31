@@ -21,6 +21,9 @@
             <el-tab-pane label="示例" name="tpInputExample">
               <Example :format="inputFormat" :data="inputExample" key="inputExample" />
             </el-tab-pane>
+            <el-tab-pane label="转换" name="tpInputTransform">
+              <Transform :data="inputModels" key="intputTransform" />
+            </el-tab-pane>
           </el-tabs>
         </el-tab-pane>
         <el-tab-pane v-if="appendixes.input" label="appendix" name="tpInputAppendix">
@@ -48,6 +51,9 @@
             <el-tab-pane label="代码" name="tpOutputError" v-if="outputErrors.length > 0">
               <Code :data="outputErrors" />
             </el-tab-pane>
+            <el-tab-pane label="转换" name="tpOutputTransform">
+              <Transform :data="outputModels" key="outputTransform" />
+            </el-tab-pane>
           </el-tabs>
         </el-tab-pane>
         <el-tab-pane v-if="appendixes.output" label="appendix" name="tpOutputAppendix">
@@ -69,6 +75,7 @@ import Header from './Header'
 import Form from './Form'
 import Code from './Code'
 import Appendix from './Appendix'
+import Transform from './Transform'
 
 @Component({
   components: {
@@ -78,7 +85,8 @@ import Appendix from './Appendix'
     Header,
     Form,
     Code,
-    Appendix
+    Appendix,
+    Transform
   },
   props: {
     id: {

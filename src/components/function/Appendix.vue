@@ -18,7 +18,10 @@
     </el-aside>
     <el-main>
       <div>
-        <div class="line">名称: {{selected.name}}</div>
+        <div class="line">
+          <span>名称: {{selected.name}}</span>
+          <span v-show="selected.value > 0" style="margin-left: 5px">- [ {{selected.value}} ]</span>
+        </div>
         <div class="line">说明: {{selected.note}}</div>
       </div>
       <el-row>
@@ -72,6 +75,7 @@ class Appendix extends VueBase {
     label: '',
     name: '',
     note: '',
+    value: 0,
     example: null,
     model: []
   }
@@ -86,6 +90,7 @@ class Appendix extends VueBase {
     }
     this.selected.name = ''
     this.selected.note = ''
+    this.selected.value = 0
     this.selected.example = null
     this.selected.model = []
   }
@@ -94,11 +99,13 @@ class Appendix extends VueBase {
     if (data) {
       this.selected.name = data.name
       this.selected.note = data.note
+      this.selected.value = data.value
       this.selected.example = data.example
       this.selected.model = data.model
     } else {
       this.selected.name = ''
       this.selected.note = ''
+      this.selected.value = 0
       this.selected.example = null
       this.selected.model = []
     }
