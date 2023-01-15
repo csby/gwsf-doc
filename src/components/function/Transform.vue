@@ -101,6 +101,9 @@ class Transform extends VueBase {
     if (v.indexOf('[') > -1) {
       isArray = true
     }
+    if (v === 'interface') {
+      return 'interface{}'
+    }
     v = v.split('.').join('')
     v = v.split('*').join('')
     v = v.split('[').join('')
@@ -138,7 +141,9 @@ class Transform extends VueBase {
       return 'DateTime'
     } else if (v === '*Date' || v === '*gtype.Date' || v === '*DateTime' || v === '*gtype.DateTime') {
       return 'DateTime?'
-    } else {
+    } else if (v === 'interface') {
+      return 'object'
+    } else if ((name.indexOf('.') > -1) || (name.indexOf('*') > -1)) {
       v = v.split('.').join('')
       v = v.split('*').join('')
       v = this.toTitleName(v)
